@@ -1,4 +1,7 @@
 # ams
+![truth](https://raw.githubusercontent.com/KKostya/ams/master/beware.jpg)
+
+
 The bin/ directory contains various scripts described here:
 _ newLoop.sh
   Is used to generate a folder containing a source code for looping on AMSEvent
