@@ -14,7 +14,7 @@
 std::string cut;
 int nEvent = 1000000000;
 
-void CopyDir(TDirectory *source, TDirectory *savdir ) {
+void CopyDir(TDirectory *source, TDirectory *savdir, std::string treeName = "AMSRoot" ) {
   static int AMSRootTreeCounter = 0;
 
   //copy all objects and subdirs of directory source as a subdir of the current directory   
@@ -38,12 +38,12 @@ void CopyDir(TDirectory *source, TDirectory *savdir ) {
       savdir->cd();
       TDirectory* newDir = savdir->mkdir(key -> GetName());
       newDir -> cd();
-      CopyDir(subdir, newDir);
+      CopyDir(subdir, newDir, treeName);
       savdir->cd();
     } else if (cl->InheritsFrom(TTree::Class())) {
       TTree* obj = (TTree*)key->ReadObj();
       savdir->cd();
-      if( strcmp(obj -> GetName(), "AMSRoot") == 0 ){
+      if( strcmp(obj -> GetName(), treeName.c_str() ) == 0 ){
 	if( ++AMSRootTreeCounter > 1 ) continue;
 	TTree* newTree = obj -> CopyTree(cut.c_str(), "", nEvent);
 	newTree -> Write();
@@ -94,7 +94,7 @@ int main( int argc, char** argv ){
 
 
 
-  CopyDir(f, target);
+  CopyDir(f, target, "selections");
   delete f;
   target->cd();
 

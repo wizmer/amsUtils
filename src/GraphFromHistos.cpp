@@ -1,12 +1,27 @@
 #include "GraphFromHistos.hpp"
 
 TGraphAsymmErrors* GraphFromHistos::build(){
+  std::string option;
+  if ( _drawFit == false ) option = "N"; // do not store graphical function
+  
   for( int iHisto = 0; iHisto < sizeHisto; ++iHisto ){
     if( f != NULL && histoToFit[ iHisto ] && histoToFit[ iHisto ] -> GetEntries() > 0 ){
-      new TCanvas();
-      histoToFit[ iHisto ] -> Fit( f, "", "", borneInfFit[iHisto], borneSupFit[iHisto] );
+      if( _drawFit == true ) new TCanvas();
+      if( histoToFit[ iHisto ] == NULL ){
+          std::cout << "Null pointer for : histoToFit["<<iHisto<<"]" << std::endl;
+          continue;
+      }
+      if( _drawFit == true ) histoToFit[ iHisto ] ->Draw();
+      histoToFit[ iHisto ] -> Fit( f, option.c_str() , "same", borneInfFit[iHisto], borneSupFit[iHisto] );
       float meanValue = f -> GetParameter( parameter );
       float sigmaValue = f -> GetParError( parameter );
+      if( _improveFittingRange ){
+          for(int iFit = 0; iFit < numberOfImprovedFits; iFit++){
+              histoToFit[ iHisto ] -> Fit( f, option.c_str() , "", meanValue - improvedFitSigmaWidth * f -> GetParameter(2), meanValue + improvedFitSigmaWidth * f -> GetParameter(2) );
+              meanValue = f -> GetParameter( parameter );
+              sigmaValue = f -> GetParError( parameter );
+          }
+      }
       gr -> SetPoint(pointNumber, xCoordinate[ iHisto ], meanValue);
       gr -> SetPointError(pointNumber++,errorXLow[iHisto], errorXHigh[iHisto], sigmaValue, sigmaValue);
     }
@@ -42,7 +57,11 @@ void GraphFromHistos::init( std::vector<TH1*> _histoToFit, std::vector< float > 
   histoToFit = _histoToFit;
   xCoordinate = _xCoordinate;
   parameter = _parameter;
-	
+  _drawFit = false;
+  _improveFittingRange = false;
+  improvedFitSigmaWidth = true;
+  numberOfImprovedFits = 1;
+  
   gr = new TGraphAsymmErrors();
 
   pointNumber = 0;
@@ -58,3 +77,4 @@ void GraphFromHistos::init( std::vector<TH1*> _histoToFit, std::vector< float > 
   errorXLow = std::vector<float>( sizeHisto );
   errorXHigh = std::vector<float>( sizeHisto );
 }
+

@@ -9,7 +9,7 @@
 #include "TChain.h"
 #include "TF1.h"
 
-#include "benoit.hpp"
+#include "rootUtils.hpp"
 #include "Stack.hpp"
 
 int main(int argc, char** argv){
@@ -21,7 +21,7 @@ int main(int argc, char** argv){
   std::string fileDir(argv[1]);  
   std::string outFileName(argv[2]);
   
-  std::vector <std::string > files = benoit::getFilesInDir( fileDir );
+  std::vector <std::string > files = generalUtils::getFilesInDirWithPattern( fileDir, "root");
   TFile* file = new TFile(outFileName.c_str() ,"recreate");
   TChain* chain = new TChain();
 

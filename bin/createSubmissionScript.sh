@@ -1,6 +1,27 @@
 #!/bin/bash
 # This script will create a script that launches LSF jobs for a given executable
 
+#set up the eos mounting point
+function setupEosRoot {
+    while true; do
+	if [ ! -d "$HOME/eos" ]; then
+	    echo Specify your eos mounting point:
+	    read eosRoot
+	    if [ ! -d "$eosRoot" ]; then
+		echo This folder does not exist !
+	    else
+		isEosRootSetUp=1
+		break;
+	    fi
+	else
+	    eosRoot=$HOME/eos
+	    isEosRootSetUp=1
+	    break;
+	fi
+    done
+    /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse mount $eosRoot
+}
+
 function mainFunction {
     scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
@@ -80,6 +101,10 @@ function mainFunction {
 	inputFileDir="$defaultInputFileDir"
     fi
 
+    if [ -n "`echo $inputFileDir | grep eos`"  ]; then
+	setupEosRoot
+    fi
+    
     while true; do
 	if [ ! -d "$inputFileDir" ]; then
 	    echo This directory doesn\'t exist
@@ -171,21 +196,9 @@ function mainFunction {
 	echo no folder created
     else
 	createEosFolder=1
-	while true; do
-	    if [ ! -d "$HOME/eos" ]; then
-		echo Specify your eos mounting point:
-		read eosRoot
-		if [ ! -d "$eosRoot" ]; then
-		    echo This folder does not exist !
-		else
-		    break;
-		fi
-	    else
-		eosRoot=$HOME/eos
-		break;
-	    fi
-	done
-	/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse mount $eosRoot
+	if [ -z "$isEosRootSetUp" ]; then
+	    setupEosRoot
+	fi
 	eosDirName=$eosRoot/ams/user/$initial/$USER/$name
 	mkdir $eosDirName
 	if [ "$?" == "0" ]; then
@@ -283,6 +296,7 @@ if [[ \${isEosFolder} == "1" ]]; then
     if [[ ! -d "\${eosRoot}/ams/user/$initial/$USER/$name" ]]; then
         echo folder: \${eosRoot}/ams/user/$initial/$USER/$name does not exist or is not accessible !
         echo Exit !
+        exit
     fi
 
     if [[ -d "\${eosRoot}/ams/user/$initial/$USER/$name/\$jobName" ]]; then
@@ -339,6 +353,10 @@ if [ "\$#" -lt 2 ]; then
     exit
 fi
 
+
+k5reauth -R
+klist
+
 # Make sure sourcing does not change your path
 curPATH=\`pwd\`
 source \$HOME/.bashrc
@@ -347,17 +365,28 @@ cd \$curPATH
 jobName=\$1
 jobNumber=\$2
 
-UUID=\$(cat /proc/sys/kernel/random/uuid) # Generate a unique folder name
-
-mkdir \$UUID
-cd \$UUID
-
-#mount eos
-
-echo reading eosdir
+mkdir eos
+eosRoot=\`pwd\`/eos
+echo making local eos mounting point ...
 /afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse mount \${eosRoot}
+cp \${executable} main
+ls -lrt
 
-\${executable} \${ROOTUPLES}
+for inputFile in \${ROOTUPLES[@]}; do
+    if [[ "\${inputFile}" == *"/eos/"* ]]; then
+        #change the eos mounting point
+        fileNameNewMountingPoint=\`echo \$inputFile | awk -F'eos/' '{printf("'\${eosRoot}/'%s",\$2)}'\`
+        echo \$fileNameNewMountingPoint
+        theLocalFile=\`basename "\$inputFile"\`
+        cp \${fileNameNewMountingPoint} .
+        ./main \${theLocalFile}
+        rm -f \${theLocalFile}
+    else
+        ./main \${inputFile}
+    fi
+done
+
+
 code=$?
 
 if [[ "\$isWorkFolder" == "1" ]]; then
@@ -381,6 +410,9 @@ if [[ "$toBeCopiedInMainFolderCommand" != "" ]]; then
 fi
 
 sed -i 's/, return code.*\$/, return code: '\${code}'/' ${absoluteFolderPath}/\${jobName}/jobList.log
+
+/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select -b fuse umount eos 
+
 
 EOF
 

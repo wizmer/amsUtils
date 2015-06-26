@@ -12,7 +12,7 @@ void CompareAmsChains::init(){
   Loop::init();
   
   std::string theData = "/afs/cern.ch/user/b/bcoste/myeos/finalMipValue/el180/el180_1282179036_Bdevv.root";
-  newChain = (TTree*) benoit::root:Get(theData, "AMSRoot");
+  newChain = (TTree*) rootUtils::root:Get(theData, "AMSRoot");
 
   newEntry = -1;
   newEvent = -1;

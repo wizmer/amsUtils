@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-#include "benoit.hpp"
+#include "rootUtils.hpp"
 
 namespace DataPathFinder{
 
@@ -18,30 +18,30 @@ namespace DataPathFinder{
   };
 
   bool ElectronMCB620(std::vector< std::string > &data){
-    data =  benoit::getFilesInDir("/storage/gpfs_ams/ams/Rec/MC/2011B/el.B620dev/el.pl1.0_255");
+    data =  rootUtils::getFilesInDir("/storage/gpfs_ams/ams/Rec/MC/2011B/el.B620dev/el.pl1.0_255");
     bool isMC = true;
     return isMC;
   }
 
   bool ProtonMCB620(std::vector< std::string > &data){
-    data =  benoit::getFilesInDir("/storage/gpfs_ams/ams/Rec/MC/2011B/protons.B620dev/pr.pl1.ecal.256");
+    data =  rootUtils::getFilesInDir("/storage/gpfs_ams/ams/Rec/MC/2011B/protons.B620dev/pr.pl1.ecal.256");
     bool isMC = true;
     return isMC;
   }
 
   bool PositronMC(std::vector< std::string > &data){
-    data =  benoit::getFilesInDir("/storage/gpfs_ams/ams/Rec/MC/2011B/pos.B598.rd.B620dev/pos.pl1.5100");
+    data =  rootUtils::getFilesInDir("/storage/gpfs_ams/ams/Rec/MC/2011B/pos.B598.rd.B620dev/pos.pl1.5100");
     bool isMC = true;
     return isMC;
   }
 
   bool Electronbt100gev(std::vector< std::string > &data){
-    data =  benoit::getFilesInDir("/storage/gpfs_ams/ams/Rec/2014/BT.B700/el100/");
+    data =  rootUtils::getFilesInDir("/storage/gpfs_ams/ams/Rec/2014/BT.B700/el100/");
     bool isMC = true;
     return isMC;
   }
   bool Data(std::vector< std::string > &data){
-    data = benoit::getFilesInDir("/storage/gpfs_ams/ams/Rec/2014/ISS.B700/pass5/");
+    data = rootUtils::getFilesInDir("/storage/gpfs_ams/ams/Rec/2014/ISS.B700/pass5/");
     bool isMC = false;
     return isMC;
   }

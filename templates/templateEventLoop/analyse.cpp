@@ -3,7 +3,7 @@
 
 #include "analyse.hpp"
 
-using namespace benoit;
+using namespace rootUtils;
 
 void Analyse::init(){
   maxRootFiles = 2;

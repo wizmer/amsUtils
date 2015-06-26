@@ -37,7 +37,7 @@ int main( int argc, char** argv ){
   std::string inputFile = "/afs/cern.ch/user/b/bcoste/eos/ams/Data/AMS02/2014/BT.B941/el100/1282147071.00816758.root";
   std::string cut = "ev -> nTrTrack() == 1 && ev -> nEcalShower() == 1";
 
-  TChain* chain = (TChain*)benoit::root::get( inputFile, "AMSRoot");
+  TChain* chain = (TChain*)rootUtils::root::get( inputFile, "AMSRoot");
   TTree* newTree = chain -> CopyTree(cut.c_str(), "",1000);
   TFile* file = new TFile("test.root","recreate");
   newTree -> Write();
