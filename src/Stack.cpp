@@ -248,6 +248,18 @@ TLine* Stack::push_back(TLine* line, std::string tlegendLabel ){
     return line;
 }
 
+TF1* Stack::push_back(TF1* f, std::string label ){
+    if(!f) {
+        std::cout << "line pointer is null" << std::endl;
+        return NULL;
+    }
+
+    vecTF1.push_back( f );
+  
+    if( label != "" ) mapLegEntry[f] = leg -> AddEntry(f, label.c_str() ,"l");
+    return f;
+}
+
 void Stack::normalize(float xinf, float xsup){
     int N = vec.size();
     if(N == 0) return;
@@ -379,7 +391,7 @@ void Stack::setDrawingOption( TObject* obj, std::string theDrawingOption ){
 
 void Stack::draw1D(){
     if( debug > 0 ) std::cout << "Stack::draw1D()" << std::endl;
-    int N = vec.size();
+    int nHisto = vec.size();
     int Ngraph = vecGraph.size();
   
     if( frame == NULL ){
@@ -392,21 +404,27 @@ void Stack::draw1D(){
     can -> cd( );
     frame -> Draw();
       
-    for(int i = 0;i<N;i++){
+    for(int i = 0;i<nHisto;i++){
         vec[i] -> SetLineColor( getColor(i) );
         vec[i] -> SetLineWidth(2);
-        if( N == 1 ) vec[i] -> SetFillColor(18);
+        if( nHisto == 1 ) vec[i] -> SetFillColor(18);
         drawingOption[ vec[i] ] += "same";
         vec[i] -> Draw( drawingOption[ vec[i] ].c_str() );
     }
 
     // Add all graphs on the plot
-    for(int i = N;i<Ngraph+N;i++) drawGraph( vecGraph[i-N], i );
+    for(int i = nHisto;i<Ngraph+nHisto;i++) drawGraph( vecGraph[i-nHisto], i );
 
     int Nlines = vecLine.size();
-    for(int i = N + Ngraph;i<Ngraph+N+Nlines;i++){
-        drawLine( vecLine[i-(N+Ngraph)] );
-        vecLine[i-(N+Ngraph)] -> SetLineColor( getColor(i) );
+    for(int i = nHisto + Ngraph;i<Ngraph+nHisto+Nlines;i++){
+        drawLine( vecLine[i-(nHisto+Ngraph)] );
+        vecLine[i-(nHisto+Ngraph)] -> SetLineColor( getColor(i) );
+    }
+
+    int NTF1 = vecTF1.size();
+    for(int i = 0; i<NTF1;i++){
+        vecTF1[i] -> SetLineColor( getColor(i+Ngraph+nHisto+Nlines) );
+        vecTF1[i] -> Draw("same");
     }
 }
 
@@ -644,4 +662,13 @@ TH1* Stack::getHisto(std::string name){
 
     std::cout << "Histo: "<< name << " not found !" << std::endl;
     return NULL;
+}
+
+TH1* Stack::at(int i){
+    if(i >= vec.size()){
+        std::cout << "Error: Element ("<< i << ") out of bounds (" << vec.size() << ") !"  << std::endl;
+        return NULL;
+    }
+
+    return vec[i];
 }

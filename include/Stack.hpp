@@ -18,6 +18,7 @@
 #include "TLine.h"
 #include "TAttFill.h"
 #include "TColor.h"
+#include "TF1.h"
 
 class Stack  // : public TObject
 {
@@ -69,6 +70,9 @@ public:
 
     // push_back the TLine, label is the TLegend label
     TLine* push_back(TLine* line, std::string tlegendLabel = "");
+
+    // push_back the TF1, label is the TLegend label
+    TF1* push_back(TF1* f, std::string tlegendLabel = "");
 
     // push_back a vertical TLine
     TLine* pushVerticalLine( float x, std::string tlegendLabel = "");
@@ -153,6 +157,13 @@ public:
         verbose = _verbose;
     }
 
+    /////////// Accessing objects //////////
+    // With histo name
+    TH1* getHisto(std::string);
+
+    // With histo number
+    TH1* at(int i);
+
 private:
     std::string name;
     std::string title;
@@ -165,6 +176,7 @@ private:
     std::vector<TH1*> vec;
     std::vector<TGraph*> vecGraph;
     std::vector<TLine*> vecLine;  
+    std::vector<TF1*> vecTF1;  
     std::map< TObject*, std::string > drawingOption;
     std::map< TObject*, TLegendEntry* > mapLegEntry;
     std::pair<double, double> limitsX;
@@ -187,8 +199,6 @@ private:
     bool checkIfCustomColor( TGraph* gr );
     void drawGraph( TGraph* gr, int objectNumber );
     void drawLine( TLine* line );
-    TH1* getHisto(std::string);
-  
     int getColor(int n, bool fill = 0);
     int verbose;
 
