@@ -187,15 +187,13 @@ private:
     bool checkIfCustomColor( TGraph* gr );
     void drawGraph( TGraph* gr, int objectNumber );
     void drawLine( TLine* line );
+    TH1* getHisto(std::string);
   
     int getColor(int n, bool fill = 0);
     int verbose;
 
     static const int debug = 0;
-    
 
-    // public:
-    //   ClassDef(Stack,0);  // The Stacking class
 };
 
 #endif

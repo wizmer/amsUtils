@@ -636,3 +636,12 @@ TLine* Stack::pushHorizontalLine( float y, std::string tlegendLabel ){
     push_back( line, tlegendLabel );
     return line;
 }
+
+TH1* Stack::getHisto(std::string name){
+    for(int i = 0;i<vec.size();i++){
+        if(std::string(vec[i] -> GetName()) == name) return vec[i];
+    }
+
+    std::cout << "Histo: "<< name << " not found !" << std::endl;
+    return NULL;
+}

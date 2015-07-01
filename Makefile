@@ -11,7 +11,7 @@ DEBUG	      := -g
 ROOTCFG  := root-config
 #CXX      :=$(shell $(ROOTCFG) --cxx)   #g++
 CXX	:= gcc
-CXXFLAGS :=$(INCLUDES) $(ROOT_INCLUDES) $(DEBUG) -O2 $(shell $(ROOTCFG) --cflags) -D_PGTRACK_ -Wno-write-strings -fPIC # TH1F...
+CXXFLAGS :=-std=c++11 $(INCLUDES) $(ROOT_INCLUDES) $(DEBUG) -O2 $(shell $(ROOTCFG) --cflags) -D_PGTRACK_ -Wno-write-strings -fPIC # TH1F... 
 ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir) -lTree
 
 #$?  List of dependencies changed more recently than current target.
@@ -33,7 +33,7 @@ lib/libRootUtils.so: rootUtils.o
 	$(CXX) ${ROOTLIBS} $(INCLUDES) -shared -o $@ $^
 
 lib/libStack.so: Stack.o
-	$(CXX) ${ROOTLIBS} $(INCLUDES) -shared -o $@ $^
+	$(CXX) ${ROOTLIBS} $(INCLUDES) -shared -o $@ $^ 
 
 lib/libGraphFromHistos.so: GraphFromHistos.o
 	$(CXX) ${ROOTLIBS} $(INCLUDES) -shared -o $@ $^
