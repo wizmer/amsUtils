@@ -176,8 +176,8 @@ private:
     TLegend *leg;
     TPad *can;
     TH2 *frame;
-    static const float topMarginFactor = 0.1;
-    static const float bottomMarginFactor = 0.1;  
+    static constexpr float topMarginFactor = 0.1;
+    static constexpr float bottomMarginFactor = 0.1;  
     void Init();
     float getMaximumInRange(TH1* h, float xinf, float xsup);
     void draw2D();
