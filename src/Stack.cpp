@@ -73,11 +73,13 @@ void Stack::Init(){
 TH1* Stack::push_back(std::string filename, std::string treename, std::string varexp, std::string selection, std::string option, Long64_t nentries, Long64_t firstentry){
     TFile* file = new TFile( filename.c_str() );
     if( file == NULL ){
+        std::cout << "WARNING in Stack::push_back" << std::endl;
         std::cout << "No file named : " << filename << std::endl;
         return NULL;
     }
     TTree* tree = (TTree*) file -> Get( treename.c_str() );
     if( tree == NULL ){
+        std::cout << "WARNING in Stack::push_back" << std::endl;
         std::cout << "File : " << filename << " doesn't have a TTree called : " << treename << std::endl;
         return NULL;
     }
@@ -98,6 +100,7 @@ std::string replacePattern(std::string str, const std::string& oldPattern, const
 
 TH1* Stack::push_back(TTree* tree, std::string varexp, std::string selection, std::string option, Long64_t nentries, Long64_t firstentry){
     if( tree == NULL ) {
+        std::cout << "WARNING in Stack::push_back" << std::endl;
         std::cout << "No pointer on tree !" << std::endl;
         return NULL;
     }
@@ -139,6 +142,7 @@ TH1* Stack::push_back(TTree* tree, std::string varexp, std::string selection, st
 
     TH1* theHisto = (TH1*) gDirectory -> Get( histoName.c_str() );
     if( theHisto == NULL ){
+        std::cout << "WARNING in Stack::push_back" << std::endl;
         std::cout << "No histo found by gDirectory -> Get : " << histoName << std::endl;
         return NULL;
     }
@@ -201,6 +205,7 @@ float Stack::getMaximumInRange(TH1* h, float xinf, float xsup){
 TH1* Stack::push_back(std::string str, std::string label){
     TH1 *h = (TH1*)gDirectory->Get(str.c_str());
     if(!h) {
+        std::cout << "WARNING in Stack::push_back" << std::endl;
         std::cout << "No such histo in file" << std::endl;
         return NULL;
     }
@@ -210,6 +215,7 @@ TH1* Stack::push_back(std::string str, std::string label){
 
 TH1* Stack::push_back(TH1* h, std::string label){
     if(!h) {
+        std::cout << "WARNING in Stack::push_back" << std::endl;
         std::cout << "histo pointer is null" << std::endl;
         return NULL;
     }
@@ -226,6 +232,7 @@ TH1* Stack::push_back(TH1* h, std::string label){
 
 TGraph* Stack::push_back(TGraph* gr, std::string tlegendLabel ){
     if(!gr) {
+        std::cout << "WARNING in Stack::push_back" << std::endl;
         std::cout << "graph pointer is null" << std::endl;
         return NULL;
     }
@@ -238,6 +245,7 @@ TGraph* Stack::push_back(TGraph* gr, std::string tlegendLabel ){
 
 TLine* Stack::push_back(TLine* line, std::string tlegendLabel ){
     if(!line) {
+        std::cout << "WARNING in Stack::push_back" << std::endl;
         std::cout << "line pointer is null" << std::endl;
         return NULL;
     }
