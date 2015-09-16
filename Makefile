@@ -5,7 +5,7 @@ AMSROOTLIBS   :=$(AMSWD)/include # amschain.h
 AMSSTATICLIBS := -L$(AMSWD)/lib/linuxx8664gcc5.34 -Llib -lntuple_slc6_PG
 INCLUDES      := -Iinclude
 ROOT_INCLUDES := -I$(AMSROOTLIBS)
-DEBUG	      := -g
+DEBUG	      := -O3
 
 #Ca va chier dans le compilo
 ROOTCFG  := root-config
@@ -21,10 +21,10 @@ ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir) -lTree
 #$*  Name of current dependency without extension.
 
 
-SRCS = generalUtils.cpp rootUtils.cpp Stack.cpp GraphFromHistos.cpp  # source files
+SRCS = generalUtils.cpp rootUtils.cpp Stack.cpp GraphFromHistos.cpp Loop.cpp  # source files
 OBJS = $(SRCS:.cpp=.o)
 
-all: lib/libGeneralUtils.so bin/ReduceSample bin/makeChain lib/libRootUtils.so
+all: lib/libGeneralUtils.so bin/makeChain bin/dircount lib/libRootUtils.so # so bin/ReduceSample 
 
 lib/libGeneralUtils.so: generalUtils.o
 	$(CXX) $(INCLUDES) -shared -o $@ $^
@@ -42,7 +42,10 @@ $(SRCS:.cpp=.o):%.o:src/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 bin/ReduceSample: src/ReduceSample.cpp lib/libRootUtils.so
-	$(CXX) $(CXXFLAGS)-o $@ $< -lRootUtils ${AMSSTATICLIBS} ${ROOTLIBS} 
+	$(CXX) $(CXXFLAGS)-o $@ $< -lRootUtils ${AMSSTATICLIBS} ${ROOTLIBS}
+
+bin/dircount: src/dircount.cpp
+	$(CXX) $(CXXFLAGS)-o $@ $< 
 
 bin/makeChain: src/makeChain.cpp lib/libRootUtils.so
 	$(CXX) $(CXXFLAGS)-o $@ $< -lRootUtils ${AMSSTATICLIBS} ${ROOTLIBS} 
