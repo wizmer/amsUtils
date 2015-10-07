@@ -12,8 +12,8 @@ OBJECTS=$(EXEC:%=./%.o)
 
 ### Options
 AMSROOTLIBS   :=$(AMSWD)/include # amschain.h
-AMSSTATICLIBS := -L$(AMSWD)/lib/linuxx8664gcc5.34 -lntuple_slc6_PG
-LIBS	      := -L${amsUtils}/lib -lRootUtils
+AMSSTATICLIBS := -L$(AMSWD)/lib/linuxx8664gcc5.34 -lntuple_slc6_PG_dynamic
+LIBS	      := -L${amsUtils}/lib -lRootUtils -lGeneralUtils
 INCLUDES      := -I. -I$(AMSROOTLIBS) -Iinclude/ -I${amsUtils}/include
 DEBUG	      := -g
 
@@ -34,7 +34,7 @@ ROOTLIBS :=$(shell $(ROOTCFG) --libs) -lTMVA -lNetx -lNet -lRFIO
 all :$(BIN)
 
 $(BIN) : $(OBJECTS) $(CLASSES)
-	$(CXX)  $(CXXFLAGS) $(INCLUDES) -o $@ $^  $(AMSSTATICLIBS) $(ROOTLIBS) $(LIBS)
+	$(CXX)  $(CXXFLAGS) $(INCLUDES) -o $@ $^  $(AMSSTATICLIBS) $(ROOTLIBS) $(LIBS) $(amsUtils)/lib/Loop.o
 
 
 $(OBJECTS): $(SRC)

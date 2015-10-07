@@ -12,7 +12,7 @@ OBJECTS=$(EXEC:%=./%.o)
 
 ### Options
 AMSROOTLIBS   :=$(AMSWD)/include # amschain.h
-AMSSTATICLIBS := -L$(AMSWD)/lib/linuxx8664gcc5.34 -lntuple_slc6_PG
+AMSSTATICLIBS := -L$(AMSWD)/lib/linuxx8664gcc5.34 -lntuple_slc6_PG_dynamic
 LIBS	      := -L${HOME}/utils/lib/ -lLoop -L${HOME}/utils/Stack/lib -lStack
 INCLUDES      := -I. -I$(AMSROOTLIBS) -Iinclude/ -I${HOME}/utils/ -I${HOME}/utils/Stack
 DEBUG	      := -g
