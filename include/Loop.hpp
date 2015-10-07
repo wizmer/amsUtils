@@ -15,12 +15,14 @@ class Loop{
  
 public:
     void go(){
+        std::clock_t start = std::clock();
 	init();
 	createHistos();
 	loopOnEvents();
 	draw();
 	writePrivate();
 	end();
+        std::cout << "\nProcessing time : " << (std::clock() - start) / (float)(CLOCKS_PER_SEC) << " s" << std::endl;
     }
 
     ~Loop(){
