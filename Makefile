@@ -2,7 +2,7 @@
 
 ### Options
 AMSROOTLIBS   :=$(AMSWD)/include # amschain.h
-AMSSTATICLIBS := -L$(AMSWD)/lib/linuxx8664gcc5.34 -Llib -lntuple_slc6_PG
+AMSSTATICLIBS := -L$(AMSWD)/lib/linuxx8664icc5.34 -Llib -lntuple_slc6_PG
 INCLUDES      := -Iinclude
 ROOT_INCLUDES := -I$(AMSROOTLIBS)
 DEBUG	      := -g
@@ -12,7 +12,7 @@ ROOTCFG  := root-config
 #CXX      :=$(shell $(ROOTCFG) --cxx)   #g++
 CXX	:= gcc
 CXXFLAGS :=-std=c++11 $(INCLUDES) $(ROOT_INCLUDES) $(DEBUG) -O2 $(shell $(ROOTCFG) --cflags) -D_PGTRACK_ -Wno-write-strings -fPIC # TH1F... 
-ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir) -lTree
+ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir --libs) 
 
 #$?  List of dependencies changed more recently than current target.
 #$^  List of dependencies.
@@ -24,7 +24,7 @@ ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir) -lTree
 SRCS = generalUtils.cpp rootUtils.cpp Stack.cpp GraphFromHistos.cpp  # source files
 OBJS = $(SRCS:.cpp=.o)
 
-all: lib/libGeneralUtils.so bin/ReduceSample bin/makeChain lib/libRootUtils.so
+all: lib/libGeneralUtils.so bin/ReduceSample bin/makeChain lib/libRootUtils.so lib/libStack.so
 
 lib/libGeneralUtils.so: generalUtils.o
 	$(CXX) $(INCLUDES) -shared -o $@ $^

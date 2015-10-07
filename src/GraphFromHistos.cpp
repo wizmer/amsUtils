@@ -1,6 +1,6 @@
 #include "GraphFromHistos.hpp"
 
-TGraphAsymmErrors* GraphFromHistos::build(){
+std::vector<TGraphAsymmErrors*> GraphFromHistos::build(){
   std::string option;
   if ( _drawFit == false ) option = "N"; // do not store graphical function
   
@@ -13,17 +13,30 @@ TGraphAsymmErrors* GraphFromHistos::build(){
       }
       if( _drawFit == true ) histoToFit[ iHisto ] ->Draw();
       histoToFit[ iHisto ] -> Fit( f, option.c_str() , "same", borneInfFit[iHisto], borneSupFit[iHisto] );
-      float meanValue = f -> GetParameter( parameter );
-      float sigmaValue = f -> GetParError( parameter );
+
+      std::vector<float> meanValue(nPar);
+      std::vector<float> sigmaValue(nPar);
+      for(int iPar = 0; iPar < nPar; iPar++){
+          meanValue[iPar] = f -> GetParameter( iPar );
+          sigmaValue[iPar] = f -> GetParError( iPar );
+      }
+      
       if( _improveFittingRange ){
           for(int iFit = 0; iFit < numberOfImprovedFits; iFit++){
-              histoToFit[ iHisto ] -> Fit( f, option.c_str() , "", meanValue - improvedFitSigmaWidth * f -> GetParameter(2), meanValue + improvedFitSigmaWidth * f -> GetParameter(2) );
-              meanValue = f -> GetParameter( parameter );
-              sigmaValue = f -> GetParError( parameter );
+              histoToFit[ iHisto ] -> Fit( f, option.c_str() , "", meanValue[1] - improvedFitSigmaWidth * f -> GetParameter(2), meanValue[1] + improvedFitSigmaWidth * f -> GetParameter(2) );
+
+              for(int iPar = 0; iPar < nPar; iPar++){
+                  meanValue[iPar] = f -> GetParameter( iPar );
+                  sigmaValue[iPar] = f -> GetParError( iPar );
+              }
           }
       }
-      gr -> SetPoint(pointNumber, xCoordinate[ iHisto ], meanValue);
-      gr -> SetPointError(pointNumber++,errorXLow[iHisto], errorXHigh[iHisto], sigmaValue, sigmaValue);
+
+      for(int iPar = 0; iPar < nPar; iPar++){
+          gr[iPar] -> SetPoint(pointNumber, xCoordinate[ iHisto ], meanValue[iPar]);
+          gr[iPar] -> SetPointError(pointNumber,errorXLow[iHisto], errorXHigh[iHisto], sigmaValue[iPar], sigmaValue[iPar]);
+      }
+      pointNumber++;
     }
   }
   return gr;
@@ -53,23 +66,23 @@ void GraphFromHistos::setXErrors( std::vector<float> _errorXLow, std::vector<flo
   }
 }
 
-void GraphFromHistos::init( std::vector<TH1*> _histoToFit, std::vector< float > _xCoordinate, std::string formula, int _parameter ) {
+void GraphFromHistos::init( std::vector<TH1*> _histoToFit, std::vector< float > _xCoordinate, std::string formula) {
   histoToFit = _histoToFit;
   xCoordinate = _xCoordinate;
-  parameter = _parameter;
   _drawFit = false;
   _improveFittingRange = false;
   improvedFitSigmaWidth = true;
   numberOfImprovedFits = 1;
   
-  gr = new TGraphAsymmErrors();
-
   pointNumber = 0;
   sizeHisto = histoToFit.size();
   sizeXCoordinate = xCoordinate.size();
 
   f = new TF1(formula.c_str(), formula.c_str());
+  nPar = f -> GetNpar();
 
+  for(int iPar = 0; iPar < nPar; iPar++) gr.push_back( new TGraphAsymmErrors() );
+  
   if( sizeHisto != sizeXCoordinate ){
     std::cout << "size of vec histoToFit (" << sizeHisto << ") is different from size of vec X coordinate (" << sizeXCoordinate << ")" << std::endl;
   }

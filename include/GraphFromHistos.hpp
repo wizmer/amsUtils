@@ -17,21 +17,21 @@
 // input: the function parameter that you want to extract
 class GraphFromHistos{
 public:
-    GraphFromHistos( std::vector<TH1*> _histoToFit, std::vector< float > _xCoordinate, std::string formula, int _parameter ){
-        init( _histoToFit, _xCoordinate, formula, _parameter );
+    GraphFromHistos( std::vector<TH1*> _histoToFit, std::vector< float > _xCoordinate, std::string formula){
+        init( _histoToFit, _xCoordinate, formula);
     }
 
-    GraphFromHistos( std::map<std::string, TH1*> _histoToFit, std::map<std::string, float > _xCoordinate, std::string _formula, int _parameter ){
+    GraphFromHistos( std::map<std::string, TH1*> _histoToFit, std::map<std::string, float > _xCoordinate, std::string _formula ){
         std::vector<TH1*> vecHisto;
         std::vector<float > vecXCoordinate;
         for( std::map<std::string, TH1*>::iterator it = _histoToFit.begin(); it != _histoToFit.end(); ++it ) vecHisto.push_back( it->second );
         for( std::map<std::string, float>::iterator it = _xCoordinate.begin(); it != _xCoordinate.end(); ++it ) vecXCoordinate.push_back( it->second );
-        init( vecHisto, vecXCoordinate, _formula, _parameter );
+        init( vecHisto, vecXCoordinate, _formula );
     }
 
     // Use a TH2 to generate the list of 1D histogram to be fitted.
     // Here the 1D histograms are obtained by Y-projecting the 2D histo for every X bin
-    GraphFromHistos( TH2* h2, std::string _formula, int _parameter, int nBinsPerPoint = 1){
+    GraphFromHistos( TH2* h2, std::string _formula, int nBinsPerPoint = 1){
         int N = h2 -> GetNbinsX() / nBinsPerPoint;
 
         std::vector< TH1* > h;
@@ -44,7 +44,7 @@ public:
             float borneSup = h2 -> GetXaxis() -> GetBinLowEdge( (i+1)*nBinsPerPoint + 1);
             x.push_back( 0.5*(borneInf+borneSup) );
         }
-        init( h, x, _formula, _parameter );
+        init( h, x, _formula );
     }
 
     ~GraphFromHistos(){
@@ -52,7 +52,7 @@ public:
         xCoordinate.clear();
     }
   
-    TGraphAsymmErrors* build();
+    std::vector<TGraphAsymmErrors*> build();
       
     void setFittingRange(float _borneInfFit, float _borneSupFit);
     void setFittingRange(std::vector<float> _borneInfFit, std::vector<float> _borneSupFit);
@@ -74,7 +74,7 @@ public:
     }
 
 protected:
-    void init( std::vector<TH1*> _histoToFit, std::vector< float > _xCoordinate, std::string formula, int _parameter );
+    void init( std::vector<TH1*> _histoToFit, std::vector< float > _xCoordinate, std::string formula );
 
 private:
     std::vector<TH1*> histoToFit;
@@ -82,16 +82,16 @@ private:
     std::vector<float> borneInfFit, borneSupFit;
     std::vector<float> errorXLow, errorXHigh;
 
-    TGraphAsymmErrors* gr;
+    std::vector<TGraphAsymmErrors*> gr;
     TF1* f;
     float sizeHisto;
     float sizeXCoordinate;
     float pointNumber;
-    int parameter; // The TF1 parameter to use for making the TGraph::SetPoint
     bool _drawFit;
     bool _improveFittingRange;
     float improvedFitSigmaWidth;
     int numberOfImprovedFits;
+    int nPar;
 };
 
 #endif
