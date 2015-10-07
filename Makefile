@@ -2,7 +2,7 @@
 
 ### Options
 AMSROOTLIBS   :=$(AMSWD)/include # amschain.h
-AMSSTATICLIBS := -L$(AMSWD)/lib/linuxx8664icc5.34 -Llib -lntuple_slc6_PG
+AMSSTATICLIBS := -L$(AMSWD)/lib/linuxx8664gcc5.34 -Llib -lntuple_slc6_PG
 INCLUDES      := -Iinclude
 ROOT_INCLUDES := -I$(AMSROOTLIBS)
 DEBUG	      := -O3
@@ -24,7 +24,7 @@ ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir --libs)
 SRCS = generalUtils.cpp rootUtils.cpp Stack.cpp GraphFromHistos.cpp Loop.cpp  # source files
 OBJS = $(SRCS:.cpp=.o)
 
-all: lib/libGeneralUtils.so bin/ReduceSample bin/makeChain lib/libRootUtils.so lib/libStack.so
+all: lib/libGeneralUtils.so  lib/libRootUtils.so lib/libStack.so # bin/ReduceSample bin/makeChain
 
 lib/libGeneralUtils.so: generalUtils.o
 	$(CXX) $(INCLUDES) -shared -o $@ $^
@@ -52,4 +52,4 @@ bin/makeChain: src/makeChain.cpp lib/libRootUtils.so
 
 .PHONY: clean
 clean:
-	rm -f lib/libRootUtils.so lib/libGeneralUtils.so ${OBJS}
+	rm -f lib/*.so ${OBJS}
