@@ -30,7 +30,6 @@ public:
     int cutEvent();
 
 protected:
-    std::string filename;
     float p;
     float R;
     bool isMC;

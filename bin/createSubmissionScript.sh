@@ -212,7 +212,7 @@ function mainFunction {
             echo "Nothing to be copied on EOS"
             toBeCopiedInEosCommand=""
 	else
-            toBeCopiedInEosCommand="cp -R $toBeCopiedInEos /afs/cern.ch/eos/$initial/$USER/$name/\${jobName}"
+            toBeCopiedInEosCommand="cp -R $toBeCopiedInEos \${eosRoot}/ams/user/$initial/$USER/$name/\${jobName}"
             echo The following command will be executed at the end of each job
             echo $toBeCopiedInEosCommand
 	fi

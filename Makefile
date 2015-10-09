@@ -5,13 +5,13 @@ AMSROOTLIBS   :=$(AMSWD)/include # amschain.h
 AMSSTATICLIBS := -L$(AMSWD)/lib/linuxx8664gcc5.34 -Llib -lntuple_slc6_PG_dynamic
 INCLUDES      := -Iinclude
 ROOT_INCLUDES := -I$(AMSROOTLIBS)
-DEBUG	      := -O3
+DEBUG	      := -g
 
 #Ca va chier dans le compilo
 ROOTCFG  := root-config
 #CXX      :=$(shell $(ROOTCFG) --cxx)   #g++
 CXX	:= g++
-CXXFLAGS :=-std=c++11 $(INCLUDES) $(ROOT_INCLUDES) $(DEBUG) -O2 $(shell $(ROOTCFG) --cflags) -D_PGTRACK_ -Wno-write-strings -fPIC # TH1F... 
+CXXFLAGS :=-std=c++11 $(INCLUDES) $(ROOT_INCLUDES) $(DEBUG) $(shell $(ROOTCFG) --cflags) -D_PGTRACK_ -Wno-write-strings -fPIC # TH1F... 
 ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir --libs) 
 
 #$?  List of dependencies changed more recently than current target.

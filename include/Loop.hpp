@@ -73,16 +73,19 @@ protected:
     unsigned int event;
     unsigned int run;
 
+    std::string outputFileName;
+
+
 private:
     AMSEventList inputList;
     AMSEventList outputList;
     int firstRun, lastRun; // First and last run of the loop
     std::string listURL;
     std::string listName;
-    std::string outputFileName;
     bool closeOutputFileOnDestroy;
     bool isSaveAMSTree;
     bool isOutputTree;
+    bool isOutputFile;
     std::map<int, int> cut;
 
 public:
@@ -92,6 +95,10 @@ public:
 
     void setOutputFileName( std::string _ouputFileName ){
 	outputFileName = _ouputFileName;
+    }
+
+    void setOutputFile( bool _outputFile ){
+	isOutputFile = _outputFile;
     }
   
     void saveAMSTree( bool _isSaveAMSTree ){
@@ -140,6 +147,7 @@ private:
     void addToList();
 
     int nentriesAfterCuts;
+
 };
 
 #endif

@@ -3,11 +3,11 @@
 
 #include "Loop.hpp"
 
-Loop::Loop( std::string _data) : closeOutputFileOnDestroy(true), isSaveAMSTree(false), useList(false), writeList(true), maxEntries(0), maxRootFiles(0){
+Loop::Loop( std::string _data) : closeOutputFileOnDestroy(true), isSaveAMSTree(false), useList(false), writeList(true), maxEntries(0), maxRootFiles(0), isOutputFile(true){
     data.push_back(_data);
 }
 
-Loop::Loop( std::vector< std::string > _data) : data(_data), closeOutputFileOnDestroy(true), isSaveAMSTree(false), useList(false), writeList(true), maxEntries(0), maxRootFiles(0){
+Loop::Loop( std::vector< std::string > _data) : data(_data), closeOutputFileOnDestroy(true), isSaveAMSTree(false), useList(false), writeList(true), maxEntries(0), maxRootFiles(0), isOutputFile(true){
 
 }
 
@@ -105,7 +105,7 @@ void Loop::init(){
   
     loadChain();
 
-    openOutputFiles();
+    if( isOutputFile ) openOutputFiles();
   
     nentries = ch->GetEntries();
   
@@ -253,38 +253,39 @@ void Loop::registerSrcFilesInRootuple(){
 }
 
 void Loop::writePrivate(){
-    outputFile -> cd();
-    if( writeList ) {
-        if( listName == "" ) listName = Form("lists/list_%i_%i.txt",firstRun, lastRun);
-        outputList.Write( listName.c_str() );
-    }
-
-    for( std::map< std::string, TH1* >::iterator it = h.begin(); it != h.end();  ++it){
-        if(it -> second != NULL){
-            it -> second -> Write();
+    if( isOutputFile ){
+        outputFile -> cd();
+        if( writeList ) {
+            if( listName == "" ) listName = Form("lists/list_%i_%i.txt",firstRun, lastRun);
+            outputList.Write( listName.c_str() );
         }
-    }
 
-    for( std::map< std::string, TH2* >::iterator it = h2.begin(); it != h2.end();  ++it){
-        if(it -> second != NULL){
-            it -> second -> Write();
+        for( std::map< std::string, TH1* >::iterator it = h.begin(); it != h.end();  ++it){
+            if(it -> second != NULL){
+                it -> second -> Write();
+            }
         }
-    }
 
-    for( std::map< std::string, TGraph* >::iterator it = gr.begin(); it != gr.end();  ++it){
-        if(it -> second != NULL){
-            it -> second -> Write(it -> first.c_str());
+        for( std::map< std::string, TH2* >::iterator it = h2.begin(); it != h2.end();  ++it){
+            if(it -> second != NULL){
+                it -> second -> Write();
+            }
         }
-    }
 
-    if( outputTree ) outputTree -> Write();
+        for( std::map< std::string, TGraph* >::iterator it = gr.begin(); it != gr.end();  ++it){
+            if(it -> second != NULL){
+                it -> second -> Write(it -> first.c_str());
+            }
+        }
 
-    // User function write
-    write();
+        if( outputTree ) outputTree -> Write();
+
+        // User function write
+        write();
     
-    if( isSaveAMSTree ) ch -> CloseOutputFile();
-    else outputFile -> Write();
-
+        if( isSaveAMSTree ) ch -> CloseOutputFile();
+        else outputFile -> Write();
+    }
 }
 
 void Loop::dumpCuts(){
