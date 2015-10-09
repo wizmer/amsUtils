@@ -35,7 +35,7 @@ public:
         for( std::map<std::string,TGraph*>::iterator it = gr.begin(); it!=gr.end(); ++it ){
             delete it->second;
         }
-        outputFile -> Close();
+        if(closeOutputFileOnDestroy) outputFile -> Close();
     }
     
     Loop( std::vector< std::string > _data = std::vector< std::string >() );
@@ -80,6 +80,7 @@ private:
     std::string listURL;
     std::string listName;
     std::string outputFileName;
+    bool closeOutputFileOnDestroy;
     bool isSaveAMSTree;
     bool isOutputTree;
     std::map<int, int> cut;
@@ -99,6 +100,10 @@ public:
 
     void setWriteList( bool _writeList ){
 	writeList = _writeList;
+    }
+
+    void closeOutputFile(bool _closeOutputFileOnDestroy){
+        closeOutputFileOnDestroy = _closeOutputFileOnDestroy;
     }
 
   

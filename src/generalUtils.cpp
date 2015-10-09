@@ -57,6 +57,13 @@ namespace generalUtils{
         return path;
     }  
 
+    std::string getFileNameWithoutExtension(std::string fullFileName){
+        std::string fileName = getFileName(fullFileName);
+        size_t pos = fileName.find_last_of('.');
+        if(pos != std::string::npos) fileName = fileName.substr(0, pos);
+        return fileName;
+    }
+
     std::string getFileName(std::string fullFileName){
         std::string path;
         std::string fileName;

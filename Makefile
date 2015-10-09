@@ -21,10 +21,10 @@ ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir --libs)
 #$*  Name of current dependency without extension.
 
 
-SRCS = generalUtils.cpp rootUtils.cpp Stack.cpp GraphFromHistos.cpp Loop.cpp  # source files
+SRCS = generalUtils.cpp rootUtils.cpp Stack.cpp GraphFromHistos.cpp Loop.cpp DstAmsBinary.cpp  # source files
 OBJS = $(SRCS:.cpp=.o)
 
-all: lib/libGeneralUtils.so  lib/libRootUtils.so lib/libStack.so bin/dstAmsBinary # bin/ReduceSample bin/makeChain
+all: DstAmsBinary.o lib/libGeneralUtils.so  lib/libRootUtils.so lib/libStack.so  # bin/ReduceSample bin/makeChain
 
 lib/libGeneralUtils.so: generalUtils.o
 	$(CXX) $(INCLUDES) -shared -o $@ $^
@@ -49,9 +49,6 @@ bin/dircount: src/dircount.cpp
 
 bin/makeChain: src/makeChain.cpp lib/libRootUtils.so 
 	$(CXX) $(CXXFLAGS)-o $@ $< -lRootUtils ${ROOTLIBS} ${AMSSTATICLIBS}
-
-bin/dstAmsBinary: src/dstAmsBinary.cpp Loop.o lib/libRootUtils.so
-	$(CXX) $(CXXFLAGS)-o $@ $< ${ROOTLIBS} ${AMSSTATICLIBS} -lRootUtils Loop.o  
 
 .PHONY: clean
 clean:

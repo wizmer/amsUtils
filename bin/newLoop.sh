@@ -2,7 +2,7 @@
 scriptDir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 originalPath=$scriptDir/../templates/templateEventLoop
 if (( "$#" < 1 )); then
-    echo usage: ./move folderName
+    echo usage: ./newLoop.sh folderName
     exit
 fi
 

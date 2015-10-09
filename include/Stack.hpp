@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <cmath>
+#include <sstream>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -132,8 +133,14 @@ public:
     // Set the TFrame title
     void setTitle( std::string title );
 
+    // Get the TFrame title
+    std::string getTitle();
+
     // Normalize all histograms
     void normalize(float xinf = 0, float xsup = 0);
+
+    // Normalize all histograms to the biggest one
+    void normalizeToBiggest(float xinf = 0, float xsup = 0);
 
     // Write the canvas in the current TFile
     void write();
@@ -156,6 +163,9 @@ public:
     void setVerbose( int _verbose ){
         verbose = _verbose;
     }
+
+    // Get number of histos
+    int getNHistos();
 
     /////////// Accessing objects //////////
     // With histo name
@@ -200,6 +210,8 @@ private:
     void drawGraph( TGraph* gr, int objectNumber );
     void drawLine( TLine* line );
     int getColor(int n, bool fill = 0);
+    static std::string indexName( std::string _name );
+
     int verbose;
 
     static const int debug = 0;

@@ -24,16 +24,24 @@ Stack::Stack(TH1 *h){
     push_back(h);
 }
 
+std::string Stack::indexName( std::string _name ){
+    canvasNameNumberOfInstance[ _name ]++;
+    
+    std::string nameIndex = _name;
+    int nInstance = canvasNameNumberOfInstance[ _name ];
+
+    std::stringstream ss;
+    if( nInstance > 1 ){
+        std::string res;
+        ss << "<" << nInstance << ">";
+    }
+    return nameIndex + ss.str();
+}
+
 void Stack::Init(){
     title = name;
-    canvasNameNumberOfInstance[ name ]++;
-  
-    int nInstance = canvasNameNumberOfInstance[ name ];
-    if( nInstance > 1 ){
-        name += "<";
-        name += ('0' + nInstance);
-        name += ">";
-    }
+    
+    name = indexName(name);
 
     frame = NULL;
     can = NULL;
@@ -176,7 +184,10 @@ Stack::~Stack(){
         delete frame;
         frame = NULL;
     }
+
+    std::cout << "Destroying stack : " << name << std::endl;
 }
+
 
 void Stack::Load( std::map< std::string, std::string > fileAndLabel, std::string histoName ){
     for( std::map< std::string, std::string>::iterator it = fileAndLabel.begin(); it != fileAndLabel.end(); ++it ){
@@ -289,8 +300,37 @@ void Stack::normalize(float xinf, float xsup){
     }
 }
 
+void Stack::normalizeToBiggest(float xinf, float xsup){
+    int N = vec.size();
+    if(N == 0) return;
+
+    ComputeLimits();
+      
+    if( xinf == 0 && xsup == 0){
+        xinf = limitsX.first;
+        xsup = limitsX.second;
+    }
+
+    float max;
+
+    for(int i = 0;i < N; i++){
+        float m = getMaximumInRange( vec[i], xinf, xsup);
+        if( m > max ) max = m;
+    }
+
+    if( max > 0 ){
+        for(int i = 0;i < N; i++){
+            vec[i] -> Scale( 1. / max );
+        }
+    }
+}
+
 void Stack::setTitle( std::string _title ){
     title = _title;
+}
+
+std::string Stack::getTitle(){
+    return title;
 }
 
 void Stack::setLabels( std::string labelX, std::string labelY ){
@@ -388,7 +428,9 @@ void Stack::setFrame( float infX, float supX, float infY, float supY ){
         return;
     }
   
-    frame = new TH2F("frame", title.c_str(),10000, infX, supX, 10000, infY, supY);
+    std::string theName = indexName("frame");
+    frame = new TH2F(theName.c_str(), title.c_str(),10000, infX, supX, 10000, infY, supY);
+    
     frame -> GetXaxis() -> SetTitle( titleX.c_str() );
     frame -> GetYaxis() -> SetTitle( titleY.c_str() );
 }
@@ -404,7 +446,7 @@ void Stack::draw1D(){
   
     if( frame == NULL ){
         ComputeLimits();
-        frame = new TH2F( "frame", title.c_str(),1000, limitsX.first, limitsX.second,1000, limitsY.first, limitsY.second + topMarginFactor * (limitsY.second - limitsY.first) );
+        frame = new TH2F( indexName("frame").c_str(), title.c_str(),1000, limitsX.first, limitsX.second,1000, limitsY.first, limitsY.second + topMarginFactor * (limitsY.second - limitsY.first) );
         frame -> GetXaxis() -> SetTitle( titleX.c_str() );
         frame -> GetYaxis() -> SetTitle( titleY.c_str() );
     }
@@ -602,7 +644,7 @@ int Stack::getColor(int n, bool fill){
 }
 
 void Stack::write(){
-    can -> Write();
+    if(can) can -> Write();
 }
 
 void Stack::write( std::string nameWithoutExtension, std::string extension ){
@@ -661,6 +703,10 @@ TLine* Stack::pushHorizontalLine( float y, std::string tlegendLabel ){
     line -> SetHorizontal();
     push_back( line, tlegendLabel );
     return line;
+}
+
+int Stack::getNHistos(){
+    return vec.size();
 }
 
 TH1* Stack::getHisto(std::string name){
