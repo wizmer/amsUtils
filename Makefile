@@ -10,7 +10,7 @@ DEBUG	      := -O3
 #Ca va chier dans le compilo
 ROOTCFG  := root-config
 #CXX      :=$(shell $(ROOTCFG) --cxx)   #g++
-CXX	:= gcc
+CXX	:= g++
 CXXFLAGS :=-std=c++11 $(INCLUDES) $(ROOT_INCLUDES) $(DEBUG) -O2 $(shell $(ROOTCFG) --cflags) -D_PGTRACK_ -Wno-write-strings -fPIC # TH1F... 
 ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir --libs) 
 
@@ -24,7 +24,7 @@ ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir --libs)
 SRCS = generalUtils.cpp rootUtils.cpp Stack.cpp GraphFromHistos.cpp Loop.cpp  # source files
 OBJS = $(SRCS:.cpp=.o)
 
-all: lib/libGeneralUtils.so  lib/libRootUtils.so lib/libStack.so # bin/ReduceSample bin/makeChain
+all: lib/libGeneralUtils.so  lib/libRootUtils.so lib/libStack.so bin/dstAmsBinary # bin/ReduceSample bin/makeChain
 
 lib/libGeneralUtils.so: generalUtils.o
 	$(CXX) $(INCLUDES) -shared -o $@ $^
@@ -38,17 +38,20 @@ lib/libStack.so: Stack.o
 lib/libGraphFromHistos.so: GraphFromHistos.o
 	$(CXX) ${ROOTLIBS} $(INCLUDES) -shared -o $@ $^
 
-$(SRCS:.cpp=.o):%.o:src/%.cpp
+$(SRCS:.cpp=.o):%.o:src/%.cpp 
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 bin/ReduceSample: src/ReduceSample.cpp lib/libRootUtils.so
-	$(CXX) $(CXXFLAGS)-o $@ $< -lRootUtils ${AMSSTATICLIBS} ${ROOTLIBS}
+	$(CXX) $(CXXFLAGS)-o $@ $< ${ROOTLIBS} ${AMSSTATICLIBS} -lRootUtils
 
 bin/dircount: src/dircount.cpp
-	$(CXX) $(CXXFLAGS)-o $@ $< 
+	$(CXX) $(CXXFLAGS)-o $@ $<
 
-bin/makeChain: src/makeChain.cpp lib/libRootUtils.so
-	$(CXX) $(CXXFLAGS)-o $@ $< -lRootUtils ${AMSSTATICLIBS} ${ROOTLIBS} 
+bin/makeChain: src/makeChain.cpp lib/libRootUtils.so 
+	$(CXX) $(CXXFLAGS)-o $@ $< -lRootUtils ${ROOTLIBS} ${AMSSTATICLIBS}
+
+bin/dstAmsBinary: src/dstAmsBinary.cpp Loop.o lib/libRootUtils.so
+	$(CXX) $(CXXFLAGS)-o $@ $< ${ROOTLIBS} ${AMSSTATICLIBS} -lRootUtils Loop.o  
 
 .PHONY: clean
 clean:
