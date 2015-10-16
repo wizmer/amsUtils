@@ -12,13 +12,11 @@ void DstAmsBinary::init(){
 
     
     registerVariables();
-
-    chunkSize = maxRAM / ((fill.size()+1)*sizeof(float));
-
-    for(auto it = fill.begin(); it != fill.end() ;it++){
-        var[it->first] = std::vector<float>(chunkSize);
-        varName.push_back(it->first);
-    }
+    nVar = variables.size();
+    
+    std::size_t memConsumption = 0;
+    for(int iVar = 0; iVar < nVar; iVar++) memConsumption += variables[iVar] -> getSize();
+    chunkSize = maxRAM / memConsumption;
 
     std::cout << "chunkSize : " << chunkSize << std::endl;
 
@@ -32,13 +30,14 @@ void DstAmsBinary::init(){
         outputFileName = outputFileName+generalUtils::toString(i);
     }
     
-    nVar = var.size();
+    for(int iVar = 0; iVar < nVar; iVar++) variables[iVar] -> allocArray(chunkSize);
+
 }
 
 bool DstAmsBinary::process(){
     initPointers();
     for( int i = 0; i<nVar; i++){
-        fill[varName[i]]();
+        variables[i] -> assign(chunkStepNumber);
     }
 
     chunkStepNumber++;
@@ -53,19 +52,12 @@ void DstAmsBinary::saveChunk(){
     static int chunkNumber = 0;
         
     std::cout << "saving chunk" << std::endl;
-    std::cout << "var.size() : " << var.size() << std::endl;
+    std::cout << "var.size() : " << nVar << std::endl;
 
-    for(auto it = var.begin(); it != var.end() ;it++){
-        std::cout << "outputFileName : " << outputFileName << std::endl;
-        std::stringstream fname;
-        fname << outputFileName <<"/" << it->first << "_chunk" << chunkNumber << ".bin";
-        std::cout << "fname.str() : " << fname.str() << std::endl;
-        std::ofstream myfile( fname.str(), std::ios::out | std::ios::binary);
-
-        // myfile.write((char*)&chunkStepNumber, sizeof(int));
-        myfile.write((char*)&(it->second[0]), sizeof(float)*chunkStepNumber);
-        myfile.close();
+    for(int iVar = 0; iVar < nVar; iVar++){
+        variables[iVar] -> save(outputFileName, chunkNumber, chunkStepNumber);
     }
+    
 
     chunkStepNumber = 0;
     chunkNumber++;
