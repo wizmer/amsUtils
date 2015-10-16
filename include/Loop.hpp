@@ -89,6 +89,10 @@ private:
     std::map<int, int> cut;
 
 public:
+    void setMaxEntries( Long64_t _maxEntries ){
+	maxEntries = _maxEntries;
+    }
+
     void setListName( std::string _listName ){
 	listName = _listName;
     }

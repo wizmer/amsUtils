@@ -7,7 +7,6 @@ using namespace rootUtils;
 
 void DstAmsBinary::init(){
     maxRootFiles = 1;
-    maxEntries = 0;
     setOutputFile(false);
     Loop::init();
 
