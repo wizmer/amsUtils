@@ -11,37 +11,39 @@
 #include "Stack.hpp"
 
 
-template <typename T> std::string getType(){ std::cerr << "Unknown specialization" << std::endl; exit(-1); }
-template <> std::string getType<float>(){ return "float"; }
-template <> std::string getType<unsigned long long>(){ return "unsigned long long"; }
-template <> std::string getType<double>(){ return "double"; }
-template <> std::string getType<unsigned int>(){ return "unsigned int"; }
-template <> std::string getType<int>(){ return "int"; }
+// template <typename T> std::string getType(){ std::cout << "Unknown specialization" << std::endl; exit(-1); }
+// template <> std::string getType<float>(){ return "float"; }
+// template <> std::string getType<unsigned long long>(){ return "unsigned long long"; }
+// template <> std::string getType<double>(){ return "double"; }
+// template <> std::string getType<unsigned int>(){ return "unsigned int"; }
+// template <> std::string getType<int>(){ return "int"; }
 
 struct ContainerBase{
-    ContainerBase(std::string _name) : name(_name){}
+    ContainerBase(std::string _name /*, std::string _theType*/) : name(_name) /*, theType(_theType)*/ {}
+    // std::string theType;
     std::string name;
     virtual void allocArray(int i) = 0;
     virtual void save(const std::string & outputFileName, int chunkNumber, int chunkStepNumber) = 0;
     virtual void assign(int i) = 0;
     virtual size_t getSize() = 0;
-    virtual std::string getType() = 0;
+    virtual void writeMetaData(std::ofstream & os) = 0;
 };
 
 
 
 template <typename T> struct Container : public ContainerBase{
-    Container<T>(std::string _name, std::function<T()> _f): ContainerBase(_name), f(_f){
-
-    }
-
-    std::string getType(){
+    Container<T>(std::string _name, std::function<T()> _f): ContainerBase(_name /*,getType<T>()*/), f(_f){
 
     }
 
     size_t getSize() override {
         return sizeof(T);
     }
+
+    void writeMetaData(std::ofstream & os) override {
+        // std::cout << "name : " << name << std::endl;
+    }
+
 
     void allocArray(int size) override {
         var = new T[size];

@@ -46,6 +46,7 @@ bool DstAmsBinary::process(){
 
 void DstAmsBinary::end(){
     if( chunkStepNumber > 0 ) saveChunk();
+    saveMetaData();
 }
 
 void DstAmsBinary::saveChunk(){
@@ -68,7 +69,9 @@ void DstAmsBinary::saveMetaData()
     std::ofstream myfile( outputFileName+"/metadata.txt", std::ios::out);
     myfile << "nVar "           << nVar          << std::endl;
     myfile << "chunkSize "      << chunkSize     << std::endl;
-      
+    // for(int iVar=0; iVar < nVar; iVar++){
+    //     variables[iVar] -> writeMetaData(myfile);
+    // }
     myfile.close();
 }
 
