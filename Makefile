@@ -24,7 +24,7 @@ ROOTLIBS :=-L/$(shell $(ROOTCFG) --libdir --libs)
 SRCS = generalUtils.cpp rootUtils.cpp Stack.cpp GraphFromHistos.cpp Loop.cpp DstAmsBinary.cpp  # source files
 OBJS = $(SRCS:.cpp=.o)
 
-all: lib/dstAmsBinary.a lib/libGeneralUtils.so  lib/libRootUtils.so lib/libStack.so  # bin/ReduceSample bin/makeChain
+all: lib/libGeneralUtils.so  lib/libRootUtils.so lib/libStack.so lib/libDstAmsBinary.so  # bin/ReduceSample bin/makeChain
 
 lib/libGeneralUtils.so: generalUtils.o
 	$(CXX) $(INCLUDES) -shared -o $@ $^
@@ -38,13 +38,10 @@ lib/libStack.so: Stack.o
 lib/libGraphFromHistos.so: GraphFromHistos.o
 	$(CXX) ${ROOTLIBS} $(INCLUDES) -shared -o $@ $^
 
-# lib/libDstAmsBinary.so: DstAmsBinary.o Loop.o
-# 	$(CXX) ${ROOTLIBS} $(INCLUDES) -shared -o $@ $^
+lib/libDstAmsBinary.so: DstAmsBinary.o Loop.o
+	$(CXX) ${ROOTLIBS} $(INCLUDES) -shared -o $@ $^
 
-lib/dstAmsBinary.a: DstAmsBinary.o Loop.o
-	ar rvs $@ $?
-
-$(SRCS:.cpp=.o):%.o:src/%.cpp 
+$(SRCS:.cpp=.o):%.o:src/%.cpp include/%.hpp 
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 bin/ReduceSample: src/ReduceSample.cpp lib/libRootUtils.so
@@ -58,4 +55,4 @@ bin/makeChain: src/makeChain.cpp lib/libRootUtils.so
 
 .PHONY: clean
 clean:
-	rm -f lib/*.so ${OBJS}
+	rm -f lib/*.so ${OBJS} lib/*.a

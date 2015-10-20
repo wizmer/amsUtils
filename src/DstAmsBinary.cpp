@@ -69,9 +69,9 @@ void DstAmsBinary::saveMetaData()
     std::ofstream myfile( outputFileName+"/metadata.txt", std::ios::out);
     myfile << "nVar "           << nVar          << std::endl;
     myfile << "chunkSize "      << chunkSize     << std::endl;
-    // for(int iVar=0; iVar < nVar; iVar++){
-    //     variables[iVar] -> writeMetaData(myfile);
-    // }
+    for(int iVar=0; iVar < nVar; iVar++){
+        variables[iVar] -> writeMetaData(myfile);
+    }
     myfile.close();
 }
 
@@ -80,5 +80,18 @@ int DstAmsBinary::cutEvent(){
 }
 
 
+template <typename T> std::string getType(){ std::cout << "Unknown specialization" << std::endl; exit(-1); }
+template <> std::string getType<float>(){ return "float"; }
+template <> std::string getType<unsigned long long>(){ return "unsigned long long"; }
+template <> std::string getType<double>(){ return "double"; }
+template <> std::string getType<unsigned int>(){ return "unsigned int"; }
+template <> std::string getType<int>(){ return "int"; }
+
+template struct Container<double>;
+template struct Container<float>;
+template struct Container<int>;
+template struct Container<unsigned int>;
+template struct Container<unsigned long long>;
 #endif
+
 
