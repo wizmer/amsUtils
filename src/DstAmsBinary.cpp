@@ -5,6 +5,13 @@
 
 using namespace rootUtils;
 
+void DstAmsBinary::initPointers(){
+}
+
+void DstAmsBinary::registerVariables(){
+
+}
+
 void DstAmsBinary::init(){
     maxRootFiles = 1;
     setOutputFile(false);
@@ -12,11 +19,10 @@ void DstAmsBinary::init(){
 
     
     registerVariables();
-    nVar = variables.size();
     
-    std::size_t memConsumption = 0;
-    for(int iVar = 0; iVar < nVar; iVar++) memConsumption += variables[iVar] -> getSize();
-    chunkSize = maxRAM / memConsumption;
+    // std::size_t memConsumption = 0;
+    // chunkSize = maxRAM / memConsumption;
+    chunkSize = 100000;
 
     std::cout << "chunkSize : " << chunkSize << std::endl;
 
@@ -29,39 +35,70 @@ void DstAmsBinary::init(){
         }
         outputFileName = outputFileName+generalUtils::toString(i);
     }
-    
-    for(int iVar = 0; iVar < nVar; iVar++) variables[iVar] -> allocArray(chunkSize);
-
 }
+
+enum{
+    RUN,
+    _SIZE_,
+};
+
+
+template <int N,typename T> struct VarBase {
+    static void save(const std::string & outputFileName, int chunkNumber, int chunkStepNumber) {
+        std::cout << "outputFileName : " << outputFileName << std::endl;
+        std::stringstream fname;
+        fname << outputFileName <<"/" << name << "_chunk" << chunkNumber << ".bin";
+        std::cout << "fname.str() : " << fname.str() << std::endl;
+        std::ofstream myfile( fname.str(), std::ios::out | std::ios::binary);
+
+        // myfile.write((char*)&chunkStepNumber, sizeof(int));
+        myfile.write((char*)var, sizeof(T)*chunkStepNumber);
+        myfile.close();
+    }
+
+    static std::string name;
+    static T var[];
+};
+
+template <int N, typename T> T VarBase<N,T>::var[100000] = {};
+
+
+template <> struct DstAmsBinary::Var<RUN> : VarBase<RUN,unsigned int>{
+    static void fill(DstAmsBinary *parent){
+        var[parent -> chunkStepNumber] = parent -> ev ? parent -> ev -> Run() : 0;
+        std::cout << "var[parent -> chunkStepNumber] : " << var[parent -> chunkStepNumber] << std::endl;
+    }
+};
+template <> std::string VarBase<RUN,unsigned int>::name = "run";
+
+
+template <> void DstAmsBinary::assign<-1>(){}
+template <> void DstAmsBinary::saveChunk<-1>(){}
 
 bool DstAmsBinary::process(){
     initPointers();
-    for( int i = 0; i<nVar; i++){
-        variables[i] -> assign(chunkStepNumber);
-    }
+
+    assign< _SIZE_ - 1 >();
 
     chunkStepNumber++;
-    if( chunkStepNumber >= chunkSize) saveChunk();
+    if( chunkStepNumber >= chunkSize) saveAll();
 }
 
-void DstAmsBinary::end(){
-    if( chunkStepNumber > 0 ) saveChunk();
-    saveMetaData();
-}
-
-void DstAmsBinary::saveChunk(){
+void DstAmsBinary::saveAll(){
     static int chunkNumber = 0;
         
     std::cout << "saving chunk" << std::endl;
     std::cout << "var.size() : " << nVar << std::endl;
 
-    for(int iVar = 0; iVar < nVar; iVar++){
-        variables[iVar] -> save(outputFileName, chunkNumber, chunkStepNumber);
-    }
-    
+    saveChunk<_SIZE_ - 1>();    
 
     chunkStepNumber = 0;
     chunkNumber++;
+}
+
+void DstAmsBinary::end(){
+    if(chunkStepNumber > 0) saveAll();
+    saveMetaData();
 }
 
 void DstAmsBinary::saveMetaData()
@@ -69,9 +106,8 @@ void DstAmsBinary::saveMetaData()
     std::ofstream myfile( outputFileName+"/metadata.txt", std::ios::out);
     myfile << "nVar "           << nVar          << std::endl;
     myfile << "chunkSize "      << chunkSize     << std::endl;
-    for(int iVar=0; iVar < nVar; iVar++){
-        variables[iVar] -> writeMetaData(myfile);
-    }
+
+
     myfile.close();
 }
 
@@ -87,11 +123,31 @@ template <> std::string getType<double>(){ return "double"; }
 template <> std::string getType<unsigned int>(){ return "unsigned int"; }
 template <> std::string getType<int>(){ return "int"; }
 
-template struct Container<double>;
-template struct Container<float>;
-template struct Container<int>;
-template struct Container<unsigned int>;
-template struct Container<unsigned long long>;
+int main(int argc, char **argv){
+    //Processing input options
+    int c;
+    int entries = 0;
+    std::string outFname;
+    std::string  inFname = "/afs/cern.ch/work/b/bcoste/protonB800.root";
+
+    if (argc==1) std::cout
+                     << "Example:  ./dst -o test.root -n 10000 $EOSPATH/ams/Data/AMS02/2014/ISS.B900/std/1439205227.00000001.root"
+                     << std::endl;
+
+    while((c = getopt(argc, argv, "o:n:")) != -1) {
+        if(c == 'o') outFname = std::string(optarg);
+        else if(c == 'n') entries = atoi(optarg);
+    }
+
+    if (optind < argc) inFname = std::string(argv[optind++]); 
+    
+    DstAmsBinary t( inFname );
+    t.setMaxEntries(entries);
+    if(!outFname.empty()) t.setOutputFileName(outFname);
+    t.go();
+    return 0;
+}
+
 #endif
 
 
