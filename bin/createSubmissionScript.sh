@@ -440,6 +440,8 @@ export executable=\$executable
 \$(declare -p libs)
 END
 
+cp job${Name}.sh \${jobName}
+
 for ((i=0; i < \${#files[@]}; i+=chunkSize)); do
     export ROOTUPLES="\${files[@]:i:chunkSize}"
     j=\$((i/chunkSize))
@@ -447,7 +449,7 @@ for ((i=0; i < \${#files[@]}; i+=chunkSize)); do
 	break
     fi    
 
-    bsubCommand="bsub -J \${jobName}_\${j} -q \${queue} k5reauth -R -- ${absoluteFolderPath}/job${Name}.sh \${jobName} \${j}"
+    bsubCommand="bsub -J \${jobName}_\${j} -q \${queue} k5reauth -R -- \$(pwd)/\${jobName}/job${Name}.sh \${jobName} \${j}"
     \$bsubCommand
     echo "\${bsubCommand}, return code: ">>${absoluteFolderPath}/\${jobName}/jobList.log
     echo \${ROOTUPLES}>>${absoluteFolderPath}/\${jobName}/inputFileList.log
