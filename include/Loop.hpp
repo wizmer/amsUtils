@@ -50,13 +50,13 @@ public:
     std::map< std::string, TGraph* > gr;
     std::map< std::string, TH1* >::iterator it;
 
-protected:
+public:
     Long64_t nentries;
     std::vector< std::string > data;
 
     TFile* outputFile;
     TTree* outputTree;
-  
+
     AMSChain *ch;
     AMSEventR* ev;
     MCEventgR* mc;
